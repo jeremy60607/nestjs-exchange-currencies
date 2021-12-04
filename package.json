@@ -1,6 +1,6 @@
 {
   "name": "nestjs-exchange-currencies",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "node": ">=12.0.0",
     "npm": ">=6.0.0"
