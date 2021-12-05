@@ -29,23 +29,23 @@ CREATE DATABASE asia_yo;
 
 CREATE TABLE asia_yo.properties
 (
-    `id`   varchar(50) NOT NULL DEFAULT (uuid()),
+    `id`   int         NOT NULL AUTO_INCREMENT primary key,
     `name` varchar(50) NOT NULL
 );
 
 
 CREATE TABLE asia_yo.rooms
 (
-    `id`          varchar(50) NOT NULL DEFAULT (uuid()),
-    `property_id` varchar(50) NOT NULL,
+    `id`          int         NOT NULL AUTO_INCREMENT primary key,
+    `property_id` int         NOT NULL AUTO_INCREMENT primary key,
     `name`        varchar(50) NOT NULL
 );
 
 
 CREATE TABLE asia_yo.orders
 (
-    `id`         varchar(50)             NOT NULL DEFAULT (uuid()),
-    `room_id`    varchar(50)             NOT NULL,
+    `id`         int                     NOT NULL AUTO_INCREMENT primary key,
+    `room_id`    int                     NOT NULL AUTO_INCREMENT primary key,
     `price`      decimal(12, 2) UNSIGNED NOT NULL DEFAULT 0,
     `created_at` datetime                NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -57,7 +57,7 @@ CREATE TABLE asia_yo.orders
 1. 於 room_id 與 property_id 加 Foreign Key
 
 2. 將 property_id 也存入 orders 另要查旅宿的 sql 可以略過 join 房間的 table
-- 訂單資料表 (orders)：id, room_id, price, created_at
+- 訂單資料表 (orders)：id, room_id, price, created_at, property_id
 
 3. 如果月報表是重要資料可以將月份的資料分開並且存入 orders table 內
 - 訂單資料表 (orders)：id, room_id, price, created_at, property_id, month
@@ -71,20 +71,20 @@ CREATE TABLE asia_yo.orders
 
 ```
 如果資料查詢速度過慢
-1. 應該先對常被查詢組合重點資料下 index
+1. 應該先對常被查詢組合重點資料下 index 以及對 sql 下 explain 語法去看效能瓶頸在哪
 
 2. 資料再細分出幾個報表 table 或如上題的資料結構先做調整
 
 3. 檢查看 table 的資料量是否過大，如果 table 資料量過大，可考慮 table sharding 可按照國籍或者地區做 sharding
 
-4. 如果月報表是常態需要的營運數據的話，可建議新增一個非同步的 table 用 nats-streaming 等同步，此 table 將資料表設計為如下
+4. 如果月報表是常態需要的營運數據的話，可用 message queue 與事件非同步建立 table ，此 table 將資料表設計為如下
 - 旅宿房間當月報表 (property_room_revenue)：id, property_id, room_id, month, price
 
-5. 如果微微服務架構的話可拆分一顆 service且再細分
+5. 如果業務需要 table 可以再細分如下
 - 旅宿當月報表 (property_revenue)：id, property_id, property_name, month, price,
 - 房間當月報表 (room_revenue)：id, property_id, room_id, room_name, month, price
 
-6. 用 redis 加快存取速度，把已經經過的月份如果查詢過後都可先存在 redis 內，因為經過月份的報表不太會改變
+6. 用 redis 加快存取速度，把已經經過的月份如果查詢過後都可先存在 redis 內，因為經過月份的報表不會改變
 ```
 
 # 實作
@@ -103,7 +103,7 @@ CREATE TABLE asia_yo.orders
 - [x] e2e test in github action
 - [x] revonate bot
 - [x] api doc
-- [ ] exchange currency implementation
+- [x] exchange currency implementation
 - [ ] build service in docker
 - [ ] build docker service when github action
 - [ ] env file
