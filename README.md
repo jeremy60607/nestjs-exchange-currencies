@@ -45,6 +45,12 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## API doc
+
+```
+http://localhost:3000/api/
+```
+
 ## Test
 
 ```bash
