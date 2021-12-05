@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/jeremy60607/nestjs-exchange-currencies/compare/v1.2.0...v1.2.1) (2021-12-05)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency mathjs to 10.0.0 ([c88babd](https://github.com/jeremy60607/nestjs-exchange-currencies/commit/c88babdc46461d57a8e2e7a5f995edf29b8fdf50))
+
 # [1.2.0](https://github.com/jeremy60607/nestjs-exchange-currencies/compare/v1.1.0...v1.2.0) (2021-12-05)
 
 
