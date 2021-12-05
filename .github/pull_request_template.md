@@ -1,20 +1,7 @@
-**What's this PR do?**
+## Description
 
-**Who must approve?**
+#### Describe your pull request.
 
-**Any background context you want to provide?**
+#### Screenshots
 
-**How should this be manually tested?**
-N/A
-
-**What are the relevant tickets number link?**
-N/A
-
-**Screenshots (if appropriate)**
-N/A
-
-**Any dependency (PR, env or any config)?**
-N/A
-
-**Anything you want to say:**
-N/A
+#### Dependency
