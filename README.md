@@ -54,6 +54,9 @@ $ npm run test
 # e2e tests
 $ npm run test:e2e
 
+# e2e tests in docker
+$ npm run docker-compose:test:e2e
+
 # test coverage
 $ npm run test:cov
 ```

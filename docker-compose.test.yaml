@@ -1,0 +1,22 @@
+# docker-compose -f docker-compose.test.yaml up --abort-on-container-exit
+version: "3.8"
+services:
+  app:
+    container_name: testing
+    tty: true
+    working_dir: /app
+    image: node:14
+    volumes:
+      - ./:/app
+    command:
+      - "npm"
+      - "run"
+      - "test:e2e"
+      - "--detectOpenHandles"
+      - "--forceExit"
+    networks:
+      - testing
+
+networks:
+  testing:
+    name: testing
