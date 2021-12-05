@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/jeremy60607/nestjs-exchange-currencies/compare/v1.0.0...v1.1.0) (2021-12-05)
+
+
+### Features
+
+* swagger for doc ([61809d8](https://github.com/jeremy60607/nestjs-exchange-currencies/commit/61809d8dd34ee364b4a9172593b95fb741139c3f))
+
 # 1.0.0 (2021-12-05)
 
 
