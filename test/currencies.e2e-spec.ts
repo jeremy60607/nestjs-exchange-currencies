@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { CurrenciesModule } from '../src/currencies/currencies.module';
-import { ExchangeCurrencyBodyDTO } from '../src/currencies/dto/currency.dto';
+import { ExchangeCurrencyQueryDTO } from '../src/currencies/dto/currency.dto';
 import { ExchangeCurrencyAO } from '../src/currencies/ao/currency.ao';
 
 describe('AppController (e2e)', () => {
@@ -15,25 +15,105 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+      }),
+    );
     await app.init();
   });
 
   it('/v1/currencies/exchange', () => {
-    const dto: ExchangeCurrencyBodyDTO = {
-      country: 'TWD',
-      exchangeCountry: 'USD',
-      currency: 31555125.8456,
+    const exchangeCurrencyQuery: ExchangeCurrencyQueryDTO = {
+      inputCurrency: 'TWD',
+      targetCurrency: 'USD',
+      value: 31555125.8456,
     };
 
-    const ao: ExchangeCurrencyAO = {
-      rate: 0.03281,
-      currency: '1,035,323.68',
+    const exchangeCurrency: ExchangeCurrencyAO = {
+      targetCurrency: 'USD',
+      targetRate: 0.03281,
+      value: '1,035,323.68',
     };
 
     return request(app.getHttpServer())
-      .put('/v1/currencies/exchange')
-      .send(dto)
+      .get('/v1/currencies/exchange')
+      .query(exchangeCurrencyQuery)
       .expect(200)
-      .expect(ao);
+      .expect(exchangeCurrency);
+  });
+
+  it('check value negative', () => {
+    return request(app.getHttpServer())
+      .get('/v1/currencies/exchange')
+      .query({
+        inputCurrency: 'USD',
+        targetCurrency: 123,
+        value: -31555125.8456,
+      })
+      .expect(400);
+  });
+
+  it('check value is number', () => {
+    return request(app.getHttpServer())
+      .get('/v1/currencies/exchange')
+      .query({
+        inputCurrency: 'USD',
+        targetCurrency: 123,
+        value: '31555125.8456',
+      })
+      .expect(400);
+  });
+
+  it('check targetCurrency is not string', () => {
+    return request(app.getHttpServer())
+      .get('/v1/currencies/exchange')
+      .query({
+        inputCurrency: 'USD',
+        targetCurrency: 123,
+        value: 31555125.8456,
+      })
+      .expect(400);
+  });
+
+  it('check inputCurrency is not string', () => {
+    return request(app.getHttpServer())
+      .get('/v1/currencies/exchange')
+      .query({
+        inputCurrency: 123,
+        targetCurrency: 'USD',
+        value: 31555125.8456,
+      })
+      .expect(400);
+  });
+
+  it('check inputCurrency is empty', () => {
+    return request(app.getHttpServer())
+      .get('/v1/currencies/exchange')
+      .query({
+        targetCurrency: 'USD',
+        value: 31555125.8456,
+      })
+      .expect(400);
+  });
+
+  it('check targetCurrency is empty', () => {
+    return request(app.getHttpServer())
+      .get('/v1/currencies/exchange')
+      .query({
+        inputCurrency: 'USD',
+        value: 31555125.8456,
+      })
+      .expect(400);
+  });
+
+  it('check value is empty', () => {
+    return request(app.getHttpServer())
+      .get('/v1/currencies/exchange')
+      .query({
+        targetCurrency: 'USD',
+        inputCurrency: 'USD',
+      })
+      .expect(400);
   });
 });
