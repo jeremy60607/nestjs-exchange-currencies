@@ -101,11 +101,11 @@ CREATE TABLE asia_yo.orders
 - [x] testing in docker
 - [x] unit test when commit
 - [x] e2e test in github action
-- [ ] api doc
+- [x] revonate bot
+- [x] api doc
 - [ ] exchange currency implementation
 - [ ] build service in docker
 - [ ] build docker service when github action
-- [ ] revonate bot
 - [ ] env file
 - [ ] log system
 - [ ] 用 redis 加快存取速度
