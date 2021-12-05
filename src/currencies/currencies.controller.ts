@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post, Put } from '@nestjs/common';
-import { ExchangeCurrencyBodyDTO } from './dto/currency.dto';
+import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
+import { ExchangeCurrencyQueryDTO } from './dto/currency.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CurrenciesService } from './currencies.service';
 import { ExchangeCurrencyAO } from './ao/currency.ao';
@@ -12,8 +12,8 @@ export class CurrenciesController {
   @ApiOkResponse({
     type: () => ExchangeCurrencyAO,
   })
-  @Put('/exchange')
-  exchangeCurrency(@Body() body: ExchangeCurrencyBodyDTO) {
-    return this.currenciesService.exchangeCurrency(body);
+  @Get('/exchange')
+  exchangeCurrency(@Query() query: ExchangeCurrencyQueryDTO) {
+    return this.currenciesService.exchangeCurrency(query);
   }
 }

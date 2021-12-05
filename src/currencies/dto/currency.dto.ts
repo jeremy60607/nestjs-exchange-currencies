@@ -1,17 +1,28 @@
-import { IsNumber, IsString } from 'class-validator';
-import { Expose } from 'class-transformer';
+import { IsNumber, IsNumberString, IsString, Min, MIN } from 'class-validator';
+import { Expose, Transform, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ExchangeCurrencyBodyDTO {
+export class ExchangeCurrencyQueryDTO {
   @IsString()
-  @ApiProperty()
-  country: string;
+  @ApiProperty({
+    description: '來源幣別',
+    example: 'TWD',
+  })
+  inputCurrency: string;
 
   @IsString()
-  @ApiProperty()
-  exchangeCountry: string;
+  @ApiProperty({
+    description: '目標幣別',
+    example: 'USD',
+  })
+  targetCurrency: string;
 
+  @Transform(({ value }) => parseFloat(value))
   @IsNumber()
-  @ApiProperty()
-  currency: number;
+  @Min(0)
+  @ApiProperty({
+    description: '金額數字',
+    example: '288887.1533',
+  })
+  value: number;
 }

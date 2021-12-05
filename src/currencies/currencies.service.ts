@@ -1,33 +1,41 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { ExchangeCurrencyBodyDTO } from './dto/currency.dto';
+import { ExchangeCurrencyQueryDTO } from './dto/currency.dto';
 import { ExchangeRatePO } from './po/currency.po';
 import { plainToClass } from 'class-transformer';
 import { ExchangeCurrencyAO } from './ao/currency.ao';
 import { ExceptionConst } from '../const/exception.const';
+import { evaluate } from 'mathjs';
+const { COUNTRY_IS_INVALID, VALUE_IS_INVALID } = ExceptionConst;
 
 @Injectable()
 export class CurrenciesService {
-  exchangeCurrency(dto: ExchangeCurrencyBodyDTO): ExchangeCurrencyAO {
-    const { country, exchangeCountry, currency } = dto;
+  exchangeCurrency(dto: ExchangeCurrencyQueryDTO): ExchangeCurrencyAO {
+    const { inputCurrency, targetCurrency, value } = dto;
 
-    const exchangeRatePO = this.fetchExchangeRate(country, exchangeCountry);
-
-    const exchangeCurrency = this.calculateCurrency(
-      exchangeRatePO.rate,
-      currency,
+    const exchangeRatePO = this.fetchExchangeRate(
+      inputCurrency,
+      targetCurrency,
     );
 
-    const currencyWithThousandsSeparator =
-      this.addThousandsSeparatorAndRoundingDigits(exchangeCurrency);
+    const exchangedValue = this.exchangeValue(exchangeRatePO.targetRate, value);
+
+    const valueWithCurrencySeparators = this.standardizeValue(exchangedValue);
 
     return plainToClass(
       ExchangeCurrencyAO,
-      { rate: exchangeRatePO.rate, currency: currencyWithThousandsSeparator },
+      {
+        targetRate: exchangeRatePO.targetRate,
+        targetCurrency,
+        value: valueWithCurrencySeparators,
+      },
       { excludeExtraneousValues: true },
     );
   }
 
-  fetchExchangeRate(country: string, exchangeCountry: string): ExchangeRatePO {
+  fetchExchangeRate(
+    inputCurrency: string,
+    targetCurrency: string,
+  ): ExchangeRatePO {
     // fetch exchange rate from ThirdParty API
     const currencies = {
       TWD: {
@@ -47,31 +55,35 @@ export class CurrenciesService {
       },
     };
 
-    const { COUNTRY_IS_INVALID } = ExceptionConst;
-
-    if (!currencies[country]) {
+    if (!currencies[inputCurrency]) {
       throw new BadRequestException(COUNTRY_IS_INVALID);
     }
 
-    if (!currencies[country][exchangeCountry]) {
+    if (!currencies[inputCurrency][targetCurrency]) {
       throw new BadRequestException(COUNTRY_IS_INVALID);
     }
 
-    const rate: number = currencies[country][exchangeCountry];
+    const targetRate: number = currencies[inputCurrency][targetCurrency];
 
     return plainToClass(
       ExchangeRatePO,
-      { rate },
+      { targetRate },
       { excludeExtraneousValues: true },
     );
   }
 
-  calculateCurrency(exchangeRate: number, currency: number): number {
-    return exchangeRate * currency;
+  exchangeValue(exchangeRate: number, value: number): number {
+    const exchangedValue = evaluate(`${exchangeRate} * ${value}`);
+
+    if (!exchangedValue || !(exchangedValue >= 0.005)) {
+      throw new BadRequestException(VALUE_IS_INVALID);
+    }
+
+    return exchangedValue;
   }
 
-  addThousandsSeparatorAndRoundingDigits(currency: number): string {
-    return currency.toLocaleString([], {
+  standardizeValue(value: number): string {
+    return value.toLocaleString([], {
       maximumFractionDigits: 2,
       minimumFractionDigits: 2,
     });
