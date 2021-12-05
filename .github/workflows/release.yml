@@ -5,8 +5,10 @@ name: Release
 # push 到 main 分支時，會促發此 workflow
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
   release:
     name: Release
